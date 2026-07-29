@@ -1,0 +1,560 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>阿根廷利润核算工具</title>
+  <style>
+    :root {
+      --primary: #1e3a5f;
+      --primary-light: #2c5282;
+      --accent: #2563eb;
+      --bg: #f0f2f5;
+      --card: #ffffff;
+      --border: #e2e5ea;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --green: #3f9142;
+      --green-soft: #f2faf2;
+      --blue-soft: #eff6ff;
+      --danger: #dc2626;
+      --danger-soft: #fff1f2;
+      --shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+      --radius-lg: 12px;
+      --radius-md: 8px;
+      --radius-sm: 6px;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans SC", Arial, sans-serif;
+    }
+
+    .page {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 20px 16px 24px;
+    }
+
+    .hero {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .hero h1 {
+      margin: 0 0 8px;
+      font-size: 30px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .hero p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      padding: 22px 24px;
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 0 20px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #eef2f7;
+      font-size: 19px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .section-title svg { flex: 0 0 auto; }
+
+    .section-title .subtitle {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 400;
+      margin-left: 6px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: 1.05fr 1fr 1.05fr;
+      gap: 16px;
+      align-items: stretch;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .grid-6 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 0.85fr 0.85fr 0.85fr;
+      gap: 14px;
+      align-items: start;
+    }
+
+    .grid-2x2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .subcard {
+      border: 1px solid #eef0f5;
+      border-radius: var(--radius-md);
+      padding: 16px;
+      background: #fafbfc;
+    }
+
+    .result-stack {
+      display: grid;
+      grid-template-rows: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .mini-card {
+      border: 1px solid #eef0f5;
+      border-radius: var(--radius-md);
+      padding: 14px;
+      background: #fafbfc;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .step-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--primary);
+      margin-bottom: 12px;
+    }
+
+    .step-badge {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      flex: 0 0 auto;
+    }
+
+    .field-group { margin-bottom: 12px; }
+    .field-group:last-child { margin-bottom: 0; }
+
+    .label {
+      display: block;
+      font-size: 13px;
+      color: #4a5568;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    input[type="number"], input[type="text"] {
+      width: 100%;
+      height: 42px;
+      border: 1px solid #d1d5db;
+      border-radius: var(--radius-sm);
+      padding: 0 12px;
+      font-size: 14px;
+      color: var(--text);
+      outline: none;
+      background: #fff;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    input::placeholder { color: #b1b8c7; }
+    input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+    }
+
+    input.readonly-result {
+      background: #f8f9fb;
+      text-align: center;
+      font-weight: 700;
+      color: var(--primary);
+      font-size: 16px;
+      border-color: #d1d5db;
+    }
+
+    .display-box {
+      height: 64px;
+      border: 1px solid #d1d5db;
+      border-radius: var(--radius-sm);
+      background: #f8f9fb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: var(--primary);
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .formula-box {
+      border: 1px solid #e5e7eb;
+      border-radius: var(--radius-sm);
+      background: #f8f9fb;
+      color: #4a5568;
+      padding: 12px 14px 10px;
+      line-height: 1.85;
+      font-size: 12px;
+    }
+
+    .formula-box strong {
+      font-size: 13px;
+      display: block;
+      margin-bottom: 4px;
+      color: var(--primary);
+    }
+
+    .result-value {
+      height: 64px;
+      border-radius: var(--radius-sm);
+      border: 1px solid;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .green-box {
+      background: var(--green-soft);
+      border-color: #c6e6c8;
+      color: var(--green);
+    }
+
+    .blue-box {
+      background: var(--blue-soft);
+      border-color: #bfd4f0;
+      color: var(--accent);
+    }
+
+    .freight-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .freight-row .field-group {
+      flex: 1;
+      margin-bottom: 0;
+    }
+
+    .freight-row .field-group.small {
+      flex: 0.65;
+    }
+
+    .freight-row .field-group.tiny {
+      flex: 0.7;
+    }
+
+    .freight-op {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--muted);
+      padding-top: 18px;
+      flex: 0 0 auto;
+    }
+
+    .rate-group {
+      display: flex;
+      gap: 12px;
+      align-items: flex-end;
+    }
+
+    .rate-group .field-group { flex: 1; }
+
+    .rate-equal {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--muted);
+      padding-bottom: 20px;
+      flex: 0 0 auto;
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .btn {
+      border: none;
+      border-radius: var(--radius-sm);
+      height: 42px;
+      padding: 0 24px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn:active { transform: translateY(1px); }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(30, 58, 95, 0.2);
+    }
+
+    .btn-primary:hover { background: var(--primary-light); }
+
+    .btn-light {
+      background: #eef0f4;
+      color: #4a5568;
+    }
+
+    .btn-light:hover { background: #e2e5ea; }
+
+    .btn-block {
+      display: block;
+      width: 100%;
+    }
+
+    .note {
+      margin-top: 6px;
+      font-size: 11px;
+      color: #8893a7;
+      line-height: 1.5;
+    }
+
+    .small-result {
+      height: 42px;
+      border-radius: var(--radius-sm);
+      border: 1px solid #d1d5db;
+      background: #f8f9fb;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .gray-result {
+      border-color: #d1d5db;
+      background: #f3f4f6;
+      color: #6b7280;
+    }
+
+    .blue-result {
+      border-color: #bfd4f0;
+      background: var(--blue-soft);
+      color: var(--accent);
+    }
+
+    .green-result {
+      border-color: #c6e6c8;
+      background: var(--green-soft);
+      color: var(--green);
+    }
+
+    .low-profit {
+      color: var(--danger) !important;
+      background: var(--danger-soft) !important;
+      border-color: #fecdd3 !important;
+    }
+
+    .profit-high { color: var(--green); }
+    .profit-low { color: var(--danger); }
+
+    .analysis-box {
+      border-radius: var(--radius-md);
+      padding: 18px;
+      margin-top: 18px;
+      border: 1px solid #d1d5db;
+      background: #f8f9fb;
+    }
+
+    .analysis-box .analysis-title {
+      font-size: 15px;
+      margin-bottom: 10px;
+      color: var(--primary);
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .analysis-box .analysis-content {
+      font-size: 14px;
+      line-height: 1.7;
+      color: var(--text);
+    }
+
+    .analysis-box .analysis-content p { margin-bottom: 6px; }
+
+    .highlight {
+      background: #fef3c7;
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-weight: 600;
+    }
+
+    .recommended { color: var(--green); font-weight: 700; }
+    .not-recommended { color: var(--danger); font-weight: 700; }
+
+    .loading {
+      text-align: center;
+      padding: 10px;
+      background: #fefce8;
+      border-radius: var(--radius-sm);
+      color: #a16207;
+      margin: 0 0 14px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 13px;
+    }
+
+    .loading .spin {
+      display: inline-block;
+      animation: spin 1.5s linear infinite;
+    }
+
+    .footer {
+      text-align: center;
+      color: #9aa1b1;
+      font-size: 12px;
+      margin-top: 12px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 1100px) {
+      .grid-3, .grid-6 { grid-template-columns: 1fr; }
+      .result-stack { grid-template-rows: none; grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 640px) {
+      .page { padding: 10px; }
+      .hero h1 { font-size: 24px; }
+      .panel { padding: 14px; }
+      .result-stack { grid-template-columns: 1fr; }
+      .grid-2, .grid-2x2 { grid-template-columns: 1fr; }
+      .actions { flex-wrap: wrap; }
+      .btn { width: 100%; }
+      .rate-group { flex-direction: column; align-items: stretch; }
+      .rate-equal { padding-bottom: 0; }
+      .freight-row { flex-direction: column; }
+      .freight-op { padding-top: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="hero">
+      <h1>阿根廷利润核算工具</h1>
+      <p>实时汇率兑换 · 体积运费测算 · 成本利润分析 · 本土货盘利润</p>
+    </div>
+
+    <!-- ============ 板块一：人民币 ↔ 美元实时汇率兑换 ============ -->
+    <section class="panel">
+      <div class="section-title">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M2 12C2 6.48 6.48 2 12 2C17.52 2 22 6.48 22 12C22 17.52 17.52 22 12 22" stroke="currentColor" stroke-width="2"/>
+          <path d="M12 2V6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M12 22V18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+        </svg>
+        <span>人民币 ↔ 美元实时汇率兑换</span>
+      </div>
+      <div class="loading" id="fxLoading">
+        <span class="spin">⏳</span> 正在获取实时汇率...
+      </div>
+      <div class="rate-group">
+        <div class="field-group">
+          <label class="label" for="rmbAmount">人民币 (CNY)</label>
+          <input type="number" id="rmbAmount" placeholder="输入人民币金额" min="0" step="0.01" oninput="convertRmbToUsd()">
+        </div>
+        <div class="rate-equal">≈</div>
+        <div class="field-group">
+          <label class="label" for="usdAmount">美元 (USD)</label>
+          <input type="number" id="usdAmount" placeholder="输入美元金额" min="0" step="0.01" oninput="convertUsdToRmb()">
+        </div>
+        <div class="field-group" style="flex:0.5;">
+          <label class="label" for="fxRate">汇率 (CNY/USD)</label>
+          <input type="number" id="fxRate" value="6.8" step="0.0001" oninput="convertRmbToUsd()">
+        </div>
+      </div>
+      <div class="note">汇率默认 6.8，支持手动修改。也可通过 <b>「实时获取」</b> 按钮自动拉取最新汇率。</div>
+      <div class="actions">
+        <button class="btn btn-primary" id="fetchFxBtn">实时获取汇率</button>
+        <button class="btn btn-light" id="clearFxBtn">清空</button>
+      </div>
+    </section>
+
+    <!-- ============ 板块二：体积与运费计算 ============ -->
+    <section class="panel">
+      <div class="section-title">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M12 2L20 6.5V17.5L12 22L4 17.5V6.5L12 2Z" stroke="currentColor" stroke-width="2"/>
+          <path d="M4 6.5L12 11L20 6.5" stroke="currentColor" stroke-width="2"/>
+          <path d="M12 11V22" stroke="currentColor" stroke-width="2"/>
+        </svg>
+        <span>体积与运费计算</span>
+      </div>
+
+      <div class="grid-3">
+        <div class="subcard">
+          <div class="step-head"><span class="step-badge">1</span> 输入尺寸（单位：cm）</div>
+          <div class="field-group">
+            <label class="label" for="length">长 (L)</label>
+            <input type="number" id="length" placeholder="请输入长度 cm" min="0" step="any">
+          </div>
+          <div class="field-group">
+            <label class="label" for="width">宽 (W)</label>
+            <input type="number" id="width" placeholder="请输入宽度 cm" min="0" step="any">
+          </div>
+          <div class="field-group">
+            <label class="label" for="height">高 (H)</label>
+            <input type="number" id="height" placeholder="请输入高度 cm" min="0" step="any">
+          </div>
+          <div class="actions">
+            <button class="btn btn-primary" id="calcVolumeBtn">计算体积与运费</button>
+            <button class="btn btn-light" id="clearVolumeBtn">清空</button>
+          </div>
+        </div>
+
+        <div class="subcard">
+          <div class="step-head"><span class="step-badge">2</span> 体积换算</div>
+          <div class="label">体积（立方米 m³）</div>
+          <div class="display-box" id="volumeDisplay">0.0000</div>
+          <div class="formula-box">
+            <strong>换算公式：</strong>
+            <div>体积(m³) = 长(cm) × 宽(cm) × 高(cm) ÷ 1,000,000</div>
+            <div>＀
